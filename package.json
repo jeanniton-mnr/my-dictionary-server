@@ -1,0 +1,39 @@
+{
+  "name": "server_my_dictionary",
+  "version": "1.0.0",
+  "description": "Node.js server of MyDictionary which handles request of the extension from chrome.",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
+    "jaro-winkler": "^0.2.8",
+    "universal-analytics": "^0.4.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "monitor": "nodemon app.js",
+    "deploy": "gcloud app deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monmomo04/MyDictionary-sever.git"
+  },
+  "keywords": [
+    "node.js",
+    "dictionary",
+    "mydictionary",
+    "extension",
+    "server",
+    "google",
+    "GCP",
+    "wordnet"
+  ],
+  "author": "Monero Jeanniton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/monmomo04/MyDictionary-sever/issues"
+  },
+  "homepage": "https://github.com/monmomo04/MyDictionary-sever#readme"
+}
