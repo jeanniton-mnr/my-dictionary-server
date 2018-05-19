@@ -18,47 +18,46 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-/**bodyParser.json(options)
+/*
+ * bodyParser.json(options)
  * Parses the text as JSON and exposes the resulting object on req.body.
  */
 
 app.use(bodyParser.json());
 
-app.post('/', function(req, res){
-	if((req.body.action) && (req.body.action === "define") ){
+app.use(function (req, res, next) {
+	// Allow cross-site origin
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	// Log request for google analytics
+	visitor.event(req.method, req.path, "Date : " + Date.now(), function (error) {
+		console.log(error);
+	}).send()
+	// Get to the next router
+	next();
+});
+
+// @route `/`
+// Render root page log
+app.all("/", function (req, res) {
+	let parameters = (req.method === "GET") ? req.query : req.body;
+	if (parameters.action && parameters.action === "define") {
 		res.redirect(307, '/define');
 	}else{
-		res.writeHead(200, "OK", {'Content-Type': 'text/html'});
+		res.writeHead(200, "OK", { 'Content-Type': 'text/html' });
 		res.write('<html><head><title>My Dictionary!</title></head><body>');
-			res.write("<h1>You are on the My Dictionary's server.</h1>");
-			res.write("<p>" + ("My Dictionary's server is up and running at: " + os.hostname() + ":" + port) + "</p>");
+		res.write("<h1>You are on the My Dictionary's server.</h1>");
+		res.write("<p>" + ("My Dictionary's server is up and running at: " + os.hostname() + ":" + port) + "</p>");
 		res.write('</body></html');
-		res.end();		
+		res.end();
 	}
 });
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-  visitor.event(req.method, req.path, "Date : " + Date.now(), function(error){
-  	console.log(error);
-  } ).send()
-  next();
-});
-
-app.get("/", function(req, res){
-	res.writeHead(200, "OK", {'Content-Type': 'text/html'});
-	res.write('<html><head><title>My Dictionary!</title></head><body>');
-		res.write("<h1>You are on the My Dictionary's server.</h1>");
-		res.write("<p>" + ("My Dictionary's server is up and running at: " + os.hostname() + ":" + port) + "</p>");
-	res.write('</body></html');
-	res.end();
-});
-app.get("/suggestions", function(req, res){
-	try{	
-		var lemma = req.query.lemma;
-		var suggestions = my_dictionary.get_suggestions(lemma);
+app.all("/suggestions", function(req, res){
+	try{
+		let parameters = (req.method === "GET") ? req.query : req.body,
+			lemma = req.query.lemma,
+			suggestions = my_dictionary.get_suggestions(lemma);
 		res.writeHead(200, { 'Content-Type': 'application/json' });
 		res.end(JSON.stringify(suggestions));
 	}catch(exception){
@@ -68,33 +67,28 @@ app.get("/suggestions", function(req, res){
 	}
 });
 
-app.post("/define", function (req, res) {
+app.all("/define", function (req, res) {
 	try{
-		var post_data = req.body;
-		var condition = (post_data.app === "myDictionary") && post_data.lemma;
-		res.writeHead(200, { 'Content-Type': 'application/json' });
-
-		if(condition){
-			my_dictionary.define(post_data.lemma, function(result){
-				if(result){
-					res.end(JSON.stringify(result));
-				}else{
-					var href = "https://www.google.ht/search?q=" + post_data.lemma.replace(/\s+/g, '+'),
-						anchor = "<a style='color:black; font-weight:bold; text-decoration:none;' href=\"" + href + "\" target=\"_blanc\">" + post_data.lemma.replace(/\+/g, " ") + "</a>",
-						result = {'error': ["<p>No dictionary results were found.<br>", "Search the web for ", anchor, ".</p>"].join("")};
-					res.end(JSON.stringify(result));
-				}
-			});
-		}else{
-			console.log("Condition is not meet for: " + JSON.stringify(req));
-			res.end({'error':
-				"Oops! I am having trouble understanding your request!<br> Check to see if you have the lastest version of MyDictionary."
-			});
-		}
-
+		let parameters = (req.method === "GET") ? req.query : req.body;
+		res.writeHead(200, {"Content-Type": "application/json"});
+		// Get definition from dictionary module
+		my_dictionary.define(parameters.lemma, function(result){
+			if(result){
+				res.end(JSON.stringify(result));
+			}else{
+				let href = "https://www.google.ht/search?q=" + parameters.lemma.replace(/\s+/g, '+'),
+					anchor = "<a style='color:black; font-weight:bold; text-decoration:none;' href=\"" + href + "\" target=\"_blanc\">" + parameters.lemma.replace(/\+/g, " ") + "</a>",
+					result = {
+						'error': ["No dictionary results were found.<br>", "Search the web for ", anchor, "."].join("")
+					};
+				res.end(JSON.stringify(result));
+			}
+		});
 	}catch(exception){
-	    // HTTP status 500: Internal Server Error
-		res.send(500, {status:500, error: 'internal error', type:'internal'});
+		// Return HTTP status 500: INternal Server Error
+		let error = "Internal Server Error",
+			type = "Internal";
+		res.send(500, {status:500, error: error, type:type});
 		console.log("Error: " + exception.message);
 	}
 });
