@@ -41,8 +41,12 @@ app.use(function (req, res, next) {
 // Render root page log
 app.all("/", function (req, res) {
 	let parameters = (req.method === "GET") ? req.query : req.body;
-	if (parameters.action && parameters.action === "define") {
-		res.redirect(307, '/define');
+	// The commented code is left as to see what the algorithm is doing
+	// In the previous version, we will only redirect the route for action
+	// egual `define`. Now the code, is more heterogeneous.
+	if (parameters.action) {						// if(parameters.action ==="define" )
+		let redirect_url = '/' + parameters.action;
+		res.redirect(307, redirect_url); // res.redirect(307, '/define')
 	}else{
 		res.writeHead(200, "OK", { 'Content-Type': 'text/html' });
 		res.write('<html><head><title>My Dictionary!</title></head><body>');
