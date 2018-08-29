@@ -2,9 +2,9 @@
 
 ##  The API   
 
-This application respond to request made by the application. It primarely sends to type of data:   
+This application responds to request made by the client application. It primarely sends to type of data:   
 1. The definition of a (input) word/lemma   
-2. the suggestions for predictive words or close matches of (input) word   
+2. the suggestions for predictive words or close matches of (input) word/lemma  
 
 
 
