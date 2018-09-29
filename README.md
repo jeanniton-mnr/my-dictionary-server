@@ -1,5 +1,10 @@
 # EDictionary, formaly known as MyDictionary, server application
 
+### Running the App:
+Open your terminal, then run   
+
+`$ node app.js`
+
 ##  The API   
 
 This application responds to request made by the client application. It primarely sends to type of data:   
