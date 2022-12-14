@@ -5,7 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.13.3",
-    "express": "^4.13.3",
+    "express": "^4.17.3",
     "jaro-winkler": "^0.2.8",
     "universal-analytics": "^0.4.6"
   },
